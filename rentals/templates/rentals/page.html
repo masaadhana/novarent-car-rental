@@ -1,0 +1,16 @@
+{% extends 'rentals/base.html' %}
+
+{% block title %}NovaRent - {{ page.title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 4rem auto; padding: 0 2rem;">
+    <div class="glass-panel" style="padding: 3.5rem; border-radius: var(--border-radius-md);">
+        <h1 style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 2rem; font-family: 'Outfit', sans-serif;">
+            {{ page.title }}
+        </h1>
+        <div style="color: var(--text-muted); line-height: 1.8; font-size: 1.05rem; white-space: pre-line;">
+            {{ page.content|safe }}
+        </div>
+    </div>
+</div>
+{% endblock %}

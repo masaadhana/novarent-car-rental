@@ -1,0 +1,170 @@
+{% extends 'rentals/base.html' %}
+
+{% block title %}NovaRent Admin - {{ form_title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 3rem auto; padding: 0 2rem;">
+    
+    <div class="glass-panel" style="padding: 3rem; border-radius: var(--border-radius-md);">
+        <h2 style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 2rem; font-family: 'Outfit', sans-serif;">
+            <i class="fa-solid fa-pen-to-square" style="color: var(--primary); margin-right: 0.5rem;"></i> {{ form_title }}
+        </h2>
+        
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if form_type == 'brand' %}
+                <!-- Brand Fields -->
+                <div class="form-group">
+                    <label class="form-label">Brand Name</label>
+                    <input type="text" name="name" value="{{ brand.name }}" class="form-control-custom" required placeholder="e.g. Tesla, Porsche, Honda">
+                </div>
+                
+            {% elif form_type == 'page' %}
+                <!-- Page Content Fields -->
+                <div class="form-group">
+                    <label class="form-label">Page Title</label>
+                    <input type="text" name="title" value="{{ page.title }}" class="form-control-custom" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Page Content (HTML Allowed)</label>
+                    <textarea name="content" rows="15" class="form-control-custom" required placeholder="Enter page text content...">{{ page.content }}</textarea>
+                </div>
+                
+            {% elif form_type == 'vehicle' %}
+                <!-- Vehicle Fields -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Name/Model</label>
+                        <input type="text" name="title" value="{{ vehicle.title }}" class="form-control-custom" required placeholder="e.g. Civic Type R, Model S">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Brand / Manufacturer</label>
+                        <select name="brand" class="form-control-custom" required>
+                            <option value="">Select Brand</option>
+                            {% for b in brands %}
+                                <option value="{{ b.id }}" {% if vehicle.brand.id == b.id %}selected{% endif %}>{{ b.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Overview Description</label>
+                    <textarea name="overview" rows="5" class="form-control-custom" required placeholder="Enter vehicle details, technical specs, rental rules...">{{ vehicle.overview }}</textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">Price Per Day ($)</label>
+                        <input type="number" step="0.01" name="price_per_day" value="{{ vehicle.price_per_day }}" class="form-control-custom" required placeholder="e.g. 99.00">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fuel Type</label>
+                        <select name="fuel_type" class="form-control-custom" required>
+                            <option value="Petrol" {% if vehicle.fuel_type == 'Petrol' %}selected{% endif %}>Petrol</option>
+                            <option value="Diesel" {% if vehicle.fuel_type == 'Diesel' %}selected{% endif %}>Diesel</option>
+                            <option value="CNG" {% if vehicle.fuel_type == 'CNG' %}selected{% endif %}>CNG</option>
+                            <option value="Electric" {% if vehicle.fuel_type == 'Electric' %}selected{% endif %}>Electric</option>
+                            <option value="Hybrid" {% if vehicle.fuel_type == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Model Year</label>
+                        <input type="number" name="model_year" value="{{ vehicle.model_year|default:2026 }}" class="form-control-custom" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">Seating Capacity</label>
+                        <input type="number" name="seating_capacity" value="{{ vehicle.seating_capacity|default:5 }}" class="form-control-custom" required>
+                    </div>
+                </div>
+
+                <!-- Images Upload -->
+                <h4 style="margin: 2rem 0 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">Vehicle Images</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="form-group">
+                        <label class="form-label">Main Image 1</label>
+                        {% if vehicle.image1 %}
+                            <div style="margin-bottom: 0.5rem;"><img src="{{ vehicle.image1.url }}" style="height: 50px; border-radius: 4px;"></div>
+                        {% endif %}
+                        <input type="file" name="image1" class="form-control-custom">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Image 2</label>
+                        {% if vehicle.image2 %}
+                            <div style="margin-bottom: 0.5rem;"><img src="{{ vehicle.image2.url }}" style="height: 50px; border-radius: 4px;"></div>
+                        {% endif %}
+                        <input type="file" name="image2" class="form-control-custom">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Image 3</label>
+                        {% if vehicle.image3 %}
+                            <div style="margin-bottom: 0.5rem;"><img src="{{ vehicle.image3.url }}" style="height: 50px; border-radius: 4px;"></div>
+                        {% endif %}
+                        <input type="file" name="image3" class="form-control-custom">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Image 4</label>
+                        {% if vehicle.image4 %}
+                            <div style="margin-bottom: 0.5rem;"><img src="{{ vehicle.image4.url }}" style="height: 50px; border-radius: 4px;"></div>
+                        {% endif %}
+                        <input type="file" name="image4" class="form-control-custom">
+                    </div>
+                </div>
+
+                <!-- Accessories checklist -->
+                <h4 style="margin: 1.5rem 0 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">Select Available Features</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="air_conditioner" {% if vehicle.air_conditioner %}checked{% endif %}> Air Conditioner
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="power_door_locks" {% if vehicle.power_door_locks %}checked{% endif %}> Power Door Locks
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="anti_lock_braking" {% if vehicle.anti_lock_braking %}checked{% endif %}> Anti-lock Braking System
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="brake_assist" {% if vehicle.brake_assist %}checked{% endif %}> Brake Assist
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="power_steering" {% if vehicle.power_steering %}checked{% endif %}> Power Steering
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="driver_airbag" {% if vehicle.driver_airbag %}checked{% endif %}> Driver Airbag
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="passenger_airbag" {% if vehicle.passenger_airbag %}checked{% endif %}> Passenger Airbag
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="power_windows" {% if vehicle.power_windows %}checked{% endif %}> Power Windows
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="cd_player" {% if vehicle.cd_player %}checked{% endif %}> CD Player
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="central_locking" {% if vehicle.central_locking %}checked{% endif %}> Central Locking
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="crash_sensor" {% if vehicle.crash_sensor %}checked{% endif %}> Crash Sensor
+                    </label>
+                    <label class="form-check-custom">
+                        <input type="checkbox" name="leather_seats" {% if vehicle.leather_seats %}checked{% endif %}> Leather Seats
+                    </label>
+                </div>
+            {% endif %}
+            
+            <div style="display: flex; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 2rem; margin-top: 2rem;">
+                <a href="{{ back_url }}" class="btn-custom btn-secondary-custom" style="flex: 1; justify-content: center;">Cancel</a>
+                <button type="submit" class="btn-custom btn-primary-custom" style="flex: 2; justify-content: center;">
+                    <i class="fa-solid fa-circle-check"></i> Save Changes
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}

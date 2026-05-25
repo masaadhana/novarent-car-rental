@@ -1,0 +1,115 @@
+{% extends 'rentals/base.html' %}
+
+{% block title %}NovaRent - Authenticate{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 2rem;">
+    <div class="glass-panel" style="width: 100%; max-width: 480px; padding: 2.5rem; border-radius: var(--border-radius-md);">
+        
+        <!-- Tabs headers -->
+        <div style="display: flex; gap: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 2rem;">
+            <button id="tab-btn-login" class="btn-custom btn-secondary-custom" style="flex: 1; text-align: center; border: none; padding: 0.6rem 0;" onclick="switchTab('login')">
+                <i class="fa-solid fa-lock"></i> Login
+            </button>
+            <button id="tab-btn-register" class="btn-custom btn-secondary-custom" style="flex: 1; text-align: center; border: none; padding: 0.6rem 0;" onclick="switchTab('register')">
+                <i class="fa-solid fa-user-plus"></i> Register
+            </button>
+        </div>
+
+        <!-- Login Container -->
+        <div id="login-container">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Sign In to Your Account</h3>
+            <form action="{% url 'login' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" class="form-control-custom" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" class="form-control-custom" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-custom btn-primary-custom" style="width: 100%; justify-content: center; margin-top: 1rem;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </button>
+            </form>
+        </div>
+
+        <!-- Register Container -->
+        <div id="register-container" style="display: none;">
+            <h3 style="margin-bottom: 1.5rem; text-align: center;">Create Account</h3>
+            <form action="{% url 'register' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="reg-username">Username</label>
+                    <input type="text" id="reg-username" name="username" class="form-control-custom" required placeholder="Choose a username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="reg-email">Email Address</label>
+                    <input type="email" id="reg-email" name="email" class="form-control-custom" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="reg-firstname">First Name</label>
+                    <input type="text" id="reg-firstname" name="first_name" class="form-control-custom" required placeholder="First name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="reg-lastname">Last Name</label>
+                    <input type="text" id="reg-lastname" name="last_name" class="form-control-custom" required placeholder="Last name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="reg-password">Password</label>
+                    <input type="password" id="reg-password" name="password" class="form-control-custom" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="reg-confirm">Confirm Password</label>
+                    <input type="password" id="reg-confirm" name="confirm_password" class="form-control-custom" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-custom btn-accent-custom" style="width: 100%; justify-content: center; margin-top: 1rem;">
+                    <i class="fa-solid fa-user-plus"></i> Create Account
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function switchTab(tabName) {
+        const loginContainer = document.getElementById('login-container');
+        const registerContainer = document.getElementById('register-container');
+        const loginBtn = document.getElementById('tab-btn-login');
+        const registerBtn = document.getElementById('tab-btn-register');
+
+        if (tabName === 'register') {
+            loginContainer.style.display = 'none';
+            registerContainer.style.display = 'block';
+            
+            // Set styles
+            registerBtn.classList.remove('btn-secondary-custom');
+            registerBtn.classList.add('btn-primary-custom');
+            loginBtn.classList.remove('btn-primary-custom');
+            loginBtn.classList.add('btn-secondary-custom');
+        } else {
+            loginContainer.style.display = 'block';
+            registerContainer.style.display = 'none';
+            
+            // Set styles
+            loginBtn.classList.remove('btn-secondary-custom');
+            loginBtn.classList.add('btn-primary-custom');
+            registerBtn.classList.remove('btn-primary-custom');
+            registerBtn.classList.add('btn-secondary-custom');
+        }
+    }
+
+    // Switch tab on page load based on query param
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab');
+        if (activeTab === 'register') {
+            switchTab('register');
+        } else {
+            switchTab('login');
+        }
+    });
+</script>
+{% endblock %}

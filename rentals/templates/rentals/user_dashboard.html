@@ -1,0 +1,215 @@
+{% extends 'rentals/base.html' %}
+
+{% block title %}NovaRent - Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+
+    <!-- Sidebar Navigation -->
+    <div class="glass-panel dashboard-sidebar">
+        <h4 style="font-family: 'Outfit', sans-serif; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; color: var(--text-muted); padding: 0.5rem 1rem;">
+            Dashboard
+        </h4>
+        <button class="sidebar-btn active" id="btn-profile" onclick="switchDashboardTab('profile')">
+            <i class="fa-regular fa-id-card"></i> Profile Info
+        </button>
+        <button class="sidebar-btn" id="btn-bookings" onclick="switchDashboardTab('bookings')">
+            <i class="fa-solid fa-list-check"></i> Booking History
+        </button>
+        <button class="sidebar-btn" id="btn-testimonial" onclick="switchDashboardTab('testimonial')">
+            <i class="fa-regular fa-comment-dots"></i> Post Testimonial
+        </button>
+        <button class="sidebar-btn" id="btn-security" onclick="switchDashboardTab('security')">
+            <i class="fa-solid fa-shield-halved"></i> Security
+        </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="glass-panel dashboard-content-panel">
+
+        <!-- Profile Panel -->
+        <div id="panel-profile">
+            <div class="panel-header">
+                <h2>Profile Details</h2>
+                <p class="section-subtitle">Manage your personal settings and configuration</p>
+            </div>
+            <form action="{% url 'update_profile' %}" method="post" style="max-width: 500px;">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control-custom" value="{{ user.username }}" disabled>
+                    <small style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.25rem; display: block;">Username cannot be changed.</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" class="form-control-custom" value="{{ user.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="first_name" class="form-control-custom" value="{{ user.first_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="last_name" class="form-control-custom" value="{{ user.last_name }}" required>
+                </div>
+                <button type="submit" class="btn-custom btn-primary-custom" style="margin-top: 1rem;">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Profile
+                </button>
+            </form>
+        </div>
+
+        <!-- Bookings Panel -->
+        <div id="panel-bookings" style="display: none;">
+            <div class="panel-header">
+                <h2>Booking History</h2>
+                <p class="section-subtitle">Monitor the state of your reservations and bookings</p>
+            </div>
+            <div class="table-responsive-custom">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Booking No</th>
+                            <th>Vehicle</th>
+                            <th>From Date</th>
+                            <th>To Date</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td style="font-weight: 700; color: #ffffff;">{{ booking.booking_number }}</td>
+                            <td>
+                                <a href="{% url 'car_details' booking.vehicle.id %}" style="color: #ffffff; font-weight: 500;">
+                                    {{ booking.vehicle.brand.name }} {{ booking.vehicle.title }}
+                                </a>
+                            </td>
+                            <td>{{ booking.from_date|date:"M d, Y" }}</td>
+                            <td>{{ booking.to_date|date:"M d, Y" }}</td>
+                            <td style="font-weight: 600; color: var(--primary);">${{ booking.total_price }}</td>
+                            <td>
+                                {% if booking.status == 'Pending' %}
+                                    <span class="badge-custom badge-pending"><i class="fa-solid fa-spinner"></i> Pending</span>
+                                {% elif booking.status == 'Approved' %}
+                                    <span class="badge-custom badge-approved"><i class="fa-solid fa-circle-check"></i> Approved</span>
+                                {% elif booking.status == 'Rejected' %}
+                                    <span class="badge-custom badge-rejected"><i class="fa-solid fa-circle-xmark"></i> Rejected</span>
+                                {% else %}
+                                    <span class="badge-custom badge-cancelled"><i class="fa-solid fa-ban"></i> Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if booking.status == 'Pending' %}
+                                <form action="{% url 'cancel_booking' booking.id %}" method="post" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-custom btn-danger-custom" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                                        Cancel
+                                    </button>
+                                </form>
+                                {% else %}
+                                    <span style="color: var(--text-muted); font-size: 0.85rem;">No actions</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem 0;">
+                                <i class="fa-solid fa-calendar-xmark" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 1rem; display: block;"></i>
+                                You haven't made any reservations yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Testimonial Panel -->
+        <div id="panel-testimonial" style="display: none;">
+            <div class="panel-header">
+                <h2>Post a Testimonial</h2>
+                <p class="section-subtitle">Share your experience renting with NovaRent</p>
+            </div>
+            <form action="{% url 'submit_testimonial' %}" method="post" style="max-width: 600px;">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Your Review</label>
+                    <textarea name="testimonial_text" rows="5" class="form-control-custom" required placeholder="Write a detailed feedback, comments, or experience..."></textarea>
+                </div>
+                <div style="background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.15); padding: 1rem; border-radius: var(--border-radius-sm); margin-bottom: 1.5rem; display: flex; gap: 0.6rem; align-items: flex-start;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--primary); margin-top: 0.2rem;"></i>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                        To maintain site safety and prevent spam, testimonials are reviewed by administrators before being published on the main landing page.
+                    </p>
+                </div>
+                <button type="submit" class="btn-custom btn-primary-custom">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Testimonial
+                </button>
+            </form>
+        </div>
+
+        <!-- Security Panel -->
+        <div id="panel-security" style="display: none;">
+            <div class="panel-header">
+                <h2>Account Security</h2>
+                <p class="section-subtitle">Update your credentials to secure your account</p>
+            </div>
+            <form action="{% url 'change_password' %}" method="post" style="max-width: 500px;">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" name="old_password" class="form-control-custom" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" name="new_password" class="form-control-custom" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm New Password</label>
+                    <input type="password" name="confirm_new_password" class="form-control-custom" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-custom btn-accent-custom" style="margin-top: 1rem;">
+                    <i class="fa-solid fa-key"></i> Update Password
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function switchDashboardTab(tabName) {
+        // Hide all panels
+        const panels = ['profile', 'bookings', 'testimonial', 'security'];
+        panels.forEach(p => {
+            const el = document.getElementById(`panel-${p}`);
+            if (el) el.style.display = 'none';
+            
+            const btn = document.getElementById(`btn-${p}`);
+            if (btn) btn.classList.remove('active');
+        });
+
+        // Show selected panel
+        const targetPanel = document.getElementById(`panel-${tabName}`);
+        if (targetPanel) targetPanel.style.display = 'block';
+
+        const targetBtn = document.getElementById(`btn-${tabName}`);
+        if (targetBtn) targetBtn.classList.add('active');
+        
+        // Update URL hash without reload
+        window.history.pushState(null, null, `#${tabName}`);
+    }
+
+    // Switch tab on page load based on URL hash
+    document.addEventListener('DOMContentLoaded', () => {
+        const hash = window.location.hash.substring(1);
+        const validPanels = ['profile', 'bookings', 'testimonial', 'security'];
+        if (hash && validPanels.includes(hash)) {
+            switchDashboardTab(hash);
+        }
+    });
+</script>
+{% endblock %}

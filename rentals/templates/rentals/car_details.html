@@ -1,0 +1,294 @@
+{% extends 'rentals/base.html' %}
+{% load static %}
+
+{% block title %}NovaRent - {{ car.brand.name }} {{ car.title }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
+    
+    <!-- Breadcrumbs / Back button -->
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'car_list' %}" class="btn-custom btn-secondary-custom" style="padding: 0.5rem 1rem;">
+            <i class="fa-solid fa-arrow-left"></i> Back to Fleet
+        </a>
+    </div>
+
+    <!-- Main Detail Grid -->
+    <div style="display: grid; grid-template-columns: 7fr 5fr; gap: 3rem;">
+        
+        <!-- Left: Image Gallery & Spec details -->
+        <div>
+            <!-- Gallery Panel -->
+            <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+                <div style="position: relative;">
+                    {% if car.image1 %}
+                        <img id="gallery-main" src="{{ car.image1.url }}" alt="{{ car.title }}" class="carousel-main-img">
+                    {% else %}
+                        <img id="gallery-main" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=1200" alt="Default vehicle image" class="carousel-main-img">
+                    {% endif %}
+                </div>
+                
+                <!-- Thumbnails -->
+                <div class="carousel-thumbnails">
+                    {% if car.image1 %}
+                        <img src="{{ car.image1.url }}" class="thumbnail-img active" onclick="setMainImage(this)">
+                    {% endif %}
+                    {% if car.image2 %}
+                        <img src="{{ car.image2.url }}" class="thumbnail-img" onclick="setMainImage(this)">
+                    {% endif %}
+                    {% if car.image3 %}
+                        <img src="{{ car.image3.url }}" class="thumbnail-img" onclick="setMainImage(this)">
+                    {% endif %}
+                    {% if car.image4 %}
+                        <img src="{{ car.image4.url }}" class="thumbnail-img" onclick="setMainImage(this)">
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Overview -->
+            <div class="glass-panel" style="padding: 2.5rem; margin-bottom: 2rem;">
+                <h3 style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.2rem;">Vehicle Overview</h3>
+                <p style="color: var(--text-muted); line-height: 1.7; font-size: 0.98rem; white-space: pre-line;">{{ car.overview }}</p>
+            </div>
+
+            <!-- Specs Grid -->
+            <div class="glass-panel" style="padding: 2.5rem; margin-bottom: 2rem;">
+                <h3 style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.2rem;">Specifications</h3>
+                <div class="detail-spec-grid">
+                    <div class="glass-panel detail-spec-card">
+                        <span class="form-label" style="margin-bottom: 0;">Brand</span>
+                        <div class="detail-spec-value">{{ car.brand.name }}</div>
+                    </div>
+                    <div class="glass-panel detail-spec-card">
+                        <span class="form-label" style="margin-bottom: 0;">Model Year</span>
+                        <div class="detail-spec-value">{{ car.model_year }}</div>
+                    </div>
+                    <div class="glass-panel detail-spec-card">
+                        <span class="form-label" style="margin-bottom: 0;">Fuel Type</span>
+                        <div class="detail-spec-value">{{ car.fuel_type }}</div>
+                    </div>
+                    <div class="glass-panel detail-spec-card">
+                        <span class="form-label" style="margin-bottom: 0;">Seats</span>
+                        <div class="detail-spec-value">{{ car.seating_capacity }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessories List -->
+            <div class="glass-panel" style="padding: 2.5rem;">
+                <h3 style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; margin-bottom: 1.2rem;">Features & Accessories</h3>
+                <div class="accessories-grid">
+                    <div class="accessory-item {% if car.air_conditioner %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.air_conditioner %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Air Conditioner
+                    </div>
+                    <div class="accessory-item {% if car.power_door_locks %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.power_door_locks %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Power Door Locks
+                    </div>
+                    <div class="accessory-item {% if car.anti_lock_braking %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.anti_lock_braking %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Anti-lock Braking (ABS)
+                    </div>
+                    <div class="accessory-item {% if car.brake_assist %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.brake_assist %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Brake Assist
+                    </div>
+                    <div class="accessory-item {% if car.power_steering %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.power_steering %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Power Steering
+                    </div>
+                    <div class="accessory-item {% if car.driver_airbag %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.driver_airbag %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Driver Airbag
+                    </div>
+                    <div class="accessory-item {% if car.passenger_airbag %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.passenger_airbag %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Passenger Airbag
+                    </div>
+                    <div class="accessory-item {% if car.power_windows %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.power_windows %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Power Windows
+                    </div>
+                    <div class="accessory-item {% if car.cd_player %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.cd_player %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        CD Player
+                    </div>
+                    <div class="accessory-item {% if car.central_locking %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.central_locking %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Central Locking
+                    </div>
+                    <div class="accessory-item {% if car.crash_sensor %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.crash_sensor %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Crash Sensor
+                    </div>
+                    <div class="accessory-item {% if car.leather_seats %}available{% else %}unavailable{% endif %}">
+                        <i class="fa-solid {% if car.leather_seats %}fa-circle-check{% else %}fa-circle-xmark{% endif %}"></i>
+                        Leather Seats
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Reservation Form & Pricing Panel -->
+        <div id="booking-panel" style="position: sticky; top: 90px; height: fit-content;">
+            
+            <div class="glass-panel" style="padding: 2.5rem; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 0.3rem;">{{ car.title }}</h3>
+                <span class="car-brand" style="font-size: 0.85rem; color: var(--primary);">{{ car.brand.name }}</span>
+                
+                <div style="margin: 1.5rem 0 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                        <span style="color: var(--text-muted);">Rental Price:</span>
+                        <strong style="font-size: 1.25rem; color: #ffffff;">${{ car.price_per_day|floatformat:2 }} / day</strong>
+                    </div>
+                </div>
+
+                {% if user.is_authenticated %}
+                <form action="{% url 'book_car' car.id %}" method="post" id="reservation-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label">Pick Up Date</label>
+                        <input type="date" name="from_date" id="from-date" class="form-control-custom" required onchange="calculateRentalCost()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Drop Off Date</label>
+                        <input type="date" name="to_date" id="to-date" class="form-control-custom" required onchange="calculateRentalCost()">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Message / Special Requests</label>
+                        <textarea name="message" rows="3" class="form-control-custom" placeholder="Optional notes for the booking team..."></textarea>
+                    </div>
+
+                    <!-- Live Cost Details -->
+                    <div id="cost-breakdown" class="glass-panel" style="display: none; padding: 1.2rem; background: rgba(0,0,0,0.15); margin: 1.5rem 0; font-size: 0.9rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="color: var(--text-muted);">Total Days:</span>
+                            <span id="total-days-val" style="font-weight: 600;">0 days</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
+                            <span style="color: var(--text-muted); font-weight: bold;">Estimated Cost:</span>
+                            <span id="estimated-cost-val" style="color: var(--primary); font-weight: 700; font-size: 1.1rem;">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Availability checker feedback status banner -->
+                    <div id="availability-banner" class="alert-custom" style="display: none; padding: 0.6rem 1rem; font-size: 0.85rem; margin-bottom: 1.2rem;">
+                        <span id="availability-msg">Checking...</span>
+                    </div>
+
+                    <button type="submit" id="book-submit-btn" class="btn-custom btn-primary-custom" style="width: 100%; justify-content: center; margin-top: 1rem;">
+                        <i class="fa-solid fa-calendar-check"></i> Book Reservation
+                    </button>
+                </form>
+                {% else %}
+                <div style="text-align: center; padding: 1rem 0;">
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Please log in or register to book this vehicle online.</p>
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="btn-custom btn-primary-custom" style="width: 100%; justify-content: center;">
+                        <i class="fa-solid fa-right-to-bracket"></i> Login to Book
+                    </a>
+                </div>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    function setMainImage(thumbnail) {
+        // Update main image source
+        const mainImg = document.getElementById('gallery-main');
+        mainImg.src = thumbnail.src;
+
+        // Toggle active class on thumbnails
+        const thumbnails = document.querySelectorAll('.thumbnail-img');
+        thumbnails.forEach(t => t.classList.remove('active'));
+        thumbnail.classList.add('active');
+    }
+
+    const pricePerDay = parseFloat("{{ car.price_per_day }}");
+
+    function calculateRentalCost() {
+        const fromDateVal = document.getElementById('from-date').value;
+        const toDateVal = document.getElementById('to-date').value;
+        const costPanel = document.getElementById('cost-breakdown');
+        const daysVal = document.getElementById('total-days-val');
+        const costVal = document.getElementById('estimated-cost-val');
+        const submitBtn = document.getElementById('book-submit-btn');
+
+        if (!fromDateVal || !toDateVal) {
+            costPanel.style.display = 'none';
+            return;
+        }
+
+        const date1 = new Date(fromDateVal);
+        const date2 = new Date(toDateVal);
+        
+        // Reset check if dates are invalid (e.g., from > to)
+        if (date1 > date2) {
+            costPanel.style.display = 'none';
+            return;
+        }
+
+        // Calculate time diff
+        const diffTime = Math.abs(date2 - date1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive booking
+
+        daysVal.textContent = diffDays + (diffDays === 1 ? ' day' : ' days');
+        costVal.textContent = '$' + (diffDays * pricePerDay).toFixed(2);
+        costPanel.style.display = 'block';
+
+        // Perform live AJAX availability check
+        checkLiveAvailability(fromDateVal, toDateVal);
+    }
+
+    function checkLiveAvailability(from, to) {
+        const banner = document.getElementById('availability-banner');
+        const msg = document.getElementById('availability-msg');
+        const submitBtn = document.getElementById('book-submit-btn');
+
+        banner.style.display = 'flex';
+        banner.className = 'alert-custom alert-warning';
+        msg.textContent = 'Verifying availability...';
+        submitBtn.disabled = true;
+
+        fetch(`{% url 'check_availability' car.id %}?from_date=${from}&to_date=${to}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.available) {
+                    banner.className = 'alert-custom alert-success';
+                    msg.innerHTML = '<i class="fa-solid fa-check"></i> Available on selected dates!';
+                    submitBtn.disabled = false;
+                } else {
+                    banner.className = 'alert-custom alert-danger';
+                    msg.innerHTML = '<i class="fa-solid fa-xmark"></i> Car is already booked for these dates.';
+                    submitBtn.disabled = true;
+                }
+            })
+            .catch(err => {
+                banner.style.display = 'none';
+                submitBtn.disabled = false; // Fallback
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Restrict date inputs to today and future
+        const today = new Date().toISOString().split('T')[0];
+        const fromInput = document.getElementById('from-date');
+        const toInput = document.getElementById('to-date');
+        if (fromInput && toInput) {
+            fromInput.min = today;
+            fromInput.addEventListener('change', () => {
+                toInput.min = fromInput.value;
+            });
+        }
+    });
+</script>
+{% endblock %}

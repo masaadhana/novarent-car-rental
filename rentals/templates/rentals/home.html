@@ -1,0 +1,189 @@
+{% extends 'rentals/base.html' %}
+{% load static %}
+
+{% block title %}NovaRent - Premium Vehicle Rentals{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-badge"><i class="fa-solid fa-sparkles"></i> Unmatched Luxury & Utility</div>
+    <h1 class="hero-title">Discover your next destination with NovaRent</h1>
+    <p class="hero-subtitle">
+        Book from our extensive collection of high-performance, electric, utility, and premium vehicles. Automating journeys with elegance.
+    </p>
+    <a href="#search-anchor" class="btn-custom btn-primary-custom">
+        <i class="fa-solid fa-magnifying-glass"></i> Find Your Vehicle
+    </a>
+</section>
+
+<!-- Search Panel Anchor -->
+<div id="search-anchor" style="padding-top: 1rem;"></div>
+
+<!-- Search Panel -->
+<div style="padding: 0 2rem; display: flex; justify-content: center;">
+    <div class="glass-panel search-panel">
+        <h4 style="margin-bottom: 1.2rem; font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-sliders" style="color: var(--primary);"></i> Find Your Ideal Ride</h4>
+        <form action="{% url 'car_list' %}" method="get">
+            <div class="search-grid">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Keyword / Model</label>
+                    <input type="text" name="q" class="form-control-custom" placeholder="e.g. Model Y, Civic">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Brand</label>
+                    <select name="brand" class="form-control-custom">
+                        <option value="">All Brands</option>
+                        {% for brand in brands %}
+                            <option value="{{ brand.id }}">{{ brand.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Fuel Type</label>
+                    <select name="fuel" class="form-control-custom">
+                        <option value="">All Fuels</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="CNG">CNG</option>
+                        <option value="Electric">Electric</option>
+                        <option value="Hybrid">Hybrid</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="btn-custom btn-primary-custom" style="width: 100%; justify-content: center;">
+                        <i class="fa-solid fa-search"></i> Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Featured Cars Section -->
+<section class="cars-container">
+    <div class="section-header">
+        <div class="section-title-wrapper">
+            <div class="hero-badge" style="margin-bottom: 0.5rem; padding: 0.3rem 0.8rem; font-size: 0.75rem;"><i class="fa-solid fa-fire"></i> Hot Deals</div>
+            <h2>Our Featured Fleet</h2>
+            <p class="section-subtitle">Specially curated selections for maximum comfort and style</p>
+        </div>
+        <a href="{% url 'car_list' %}" class="btn-custom btn-secondary-custom">
+            View All Fleet <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <div class="cars-grid">
+        {% for car in cars %}
+        <div class="glass-panel car-card">
+            <div class="car-image-container">
+                {% if car.image1 %}
+                    <img src="{{ car.image1.url }}" alt="{{ car.title }}" class="car-image">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600" alt="Default vehicle image" class="car-image">
+                {% endif %}
+                <div class="car-price-tag">${{ car.price_per_day|floatformat:0 }} / day</div>
+            </div>
+            
+            <div class="car-info">
+                <span class="car-brand">{{ car.brand.name }}</span>
+                <h3 class="car-title">{{ car.title }}</h3>
+                
+                <div class="car-specs-strip">
+                    <div class="spec-item">
+                        <i class="fa-solid fa-gas-pump"></i>
+                        <span>{{ car.fuel_type }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <i class="fa-solid fa-calendar"></i>
+                        <span>{{ car.model_year }}</span>
+                    </div>
+                    <div class="spec-item">
+                        <i class="fa-solid fa-user-group"></i>
+                        <span>{{ car.seating_capacity }} seats</span>
+                    </div>
+                </div>
+                
+                <div class="car-actions">
+                    <a href="{% url 'car_details' car.id %}" class="btn-custom btn-secondary-custom">Specs</a>
+                    <a href="{% url 'car_details' car.id %}#booking-panel" class="btn-custom btn-primary-custom">Book Now</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="glass-panel" style="grid-column: 1 / -1; padding: 3rem; text-align: center; color: var(--text-muted);">
+            <i class="fa-solid fa-circle-info" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+            <h3>No vehicles available at the moment.</h3>
+            <p>Please check back later or contact customer support.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Testimonials Carousel Section -->
+{% if testimonials %}
+<section class="testimonials-section">
+    <div class="hero-badge" style="margin-bottom: 1rem;"><i class="fa-solid fa-quote-left"></i> Client Reviews</div>
+    <h2 style="margin-bottom: 2rem;">What Our Clients Say</h2>
+    
+    <div class="glass-panel testimonial-card">
+        <div id="testimonial-slider">
+            {% for t in testimonials %}
+            <div class="testimonial-slide" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+                <p class="testimonial-quote">"{{ t.testimonial_text }}"</p>
+                <h4 class="testimonial-author">{{ t.user.first_name }} {{ t.user.last_name|slice:":1" }}.</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Verified Customer</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if testimonials|length > 1 %}
+        <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
+            <button class="btn-custom btn-secondary-custom" style="padding: 0.4rem 1rem;" onclick="prevSlide()">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button class="btn-custom btn-secondary-custom" style="padding: 0.4rem 1rem;" onclick="nextSlide()">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Newsletter Panel -->
+<section style="padding: 0 2rem 4rem;">
+    <div class="glass-panel newsletter-panel">
+        <h3 style="margin-bottom: 0.5rem;"><i class="fa-solid fa-paper-plane" style="color: var(--primary);"></i> Subscribe to our Newsletter</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Receive exclusive discount details, early reservations, and luxury news straight to your inbox.</p>
+        <form action="{% url 'subscribe' %}" method="post" class="newsletter-form">
+            {% csrf_token %}
+            <input type="email" name="email" class="form-control-custom" required placeholder="Enter your email address" style="flex-grow: 1;">
+            <button type="submit" class="btn-custom btn-primary-custom" style="white-space: nowrap;">Subscribe</button>
+        </form>
+    </div>
+</section>
+
+{% if testimonials|length > 1 %}
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.testimonial-slide');
+    
+    function showSlide(index) {
+        slides[currentSlide].style.display = 'none';
+        currentSlide = (index + slides.length) % slides.length;
+        slides[currentSlide].style.display = 'block';
+    }
+    
+    function nextSlide() {
+        showSlide(currentSlide + 1);
+    }
+    
+    function prevSlide() {
+        showSlide(currentSlide - 1);
+    }
+    
+    // Auto slide every 8 seconds
+    setInterval(nextSlide, 8000);
+</script>
+{% endif %}
+{% endblock %}
